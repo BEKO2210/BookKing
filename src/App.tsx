@@ -28,6 +28,15 @@ const AnalyticsPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 );
+const HowItWorksPage = lazy(() =>
+  import('@/pages/HowItWorksPage').then((m) => ({ default: m.HowItWorksPage })),
+);
+const PrivacyPage = lazy(() =>
+  import('@/pages/PrivacyPage').then((m) => ({ default: m.PrivacyPage })),
+);
+const HelpPage = lazy(() =>
+  import('@/pages/HelpPage').then((m) => ({ default: m.HelpPage })),
+);
 
 // Lazy-load heavy dashboard layout components
 const Sidebar = lazy(() =>
@@ -93,7 +102,7 @@ function DashboardLayout() {
           <div className="w-10" />
         </header>
 
-        <div className="p-4 lg:p-8 pb-24 lg:pb-8 max-w-6xl">
+        <div id="main-content" className="p-4 lg:p-8 pb-24 lg:pb-8 max-w-6xl">
           <ErrorBoundary>
             <Suspense fallback={<LoadingSpinner />}>
               <Outlet />
@@ -133,6 +142,32 @@ export default function App() {
             element={
               <Suspense fallback={<LoadingSpinner />}>
                 <PublicBookingPage />
+              </Suspense>
+            }
+          />
+
+          {/* Info pages */}
+          <Route
+            path="/info/how-it-works"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <HowItWorksPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/info/privacy"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <PrivacyPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/info/help"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <HelpPage />
               </Suspense>
             }
           />

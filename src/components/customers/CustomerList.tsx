@@ -3,6 +3,7 @@ import { Search, Download, Mail, Phone } from 'lucide-react';
 import { useCustomers } from '@/hooks/useCustomers';
 import { formatDateShort, getInitials, stringToColor, getContrastColor, getTagLabel } from '@/lib/utils';
 import { CustomerProfile } from './CustomerProfile';
+import { InfoButton } from '@/components/ui/InfoButton';
 import type { Customer } from '@/types';
 
 export function CustomerList() {
@@ -55,17 +56,29 @@ export function CustomerList() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Kunden</h2>
-          <p className="text-sm text-gray-500">{customers.length} Kunden</p>
+      <div className="flex items-center justify-between mb-6 gap-3">
+        <div className="flex items-center gap-2">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Kunden</h2>
+            <p className="text-sm text-gray-500">{customers.length} Kunden</p>
+          </div>
+          <InfoButton title="Kundenverwaltung">
+            <p>Hier sehen Sie alle Kunden, die jemals einen Termin gebucht haben:</p>
+            <ul className="list-disc list-inside space-y-1 ml-1">
+              <li>Klicken Sie auf einen Kunden für Details und Buchungshistorie</li>
+              <li><strong>Tags</strong> wie „VIP" oder „Stammkunde" helfen beim Sortieren</li>
+              <li><strong>CSV Export</strong> lädt alle Kundendaten herunter</li>
+              <li>Nutzen Sie die <strong>Suche</strong> für Name, E-Mail oder Telefon</li>
+            </ul>
+          </InfoButton>
         </div>
         <button
           onClick={handleExportCSV}
-          className="btn-secondary flex items-center gap-2 text-sm"
+          className="btn-secondary flex items-center gap-2 text-sm shrink-0"
         >
           <Download size={16} />
-          CSV Export
+          <span className="hidden sm:inline">CSV Export</span>
+          <span className="sm:hidden">Export</span>
         </button>
       </div>
 

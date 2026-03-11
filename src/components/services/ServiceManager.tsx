@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { useServices } from '@/hooks/useServices';
 import { formatPrice, formatDuration } from '@/lib/utils';
 import { ServiceForm } from './ServiceForm';
+import { InfoButton } from '@/components/ui/InfoButton';
 import type { Service } from '@/types';
 
 export function ServiceManager() {
@@ -37,14 +38,28 @@ export function ServiceManager() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">Services</h2>
-          <p className="text-sm text-gray-500">{services.length} Services</p>
+      <div className="flex items-center justify-between mb-6 gap-3">
+        <div className="flex items-center gap-2">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Services</h2>
+            <p className="text-sm text-gray-500">{services.length} Services</p>
+          </div>
+          <InfoButton title="Services verwalten">
+            <p>Hier verwalten Sie alle Dienstleistungen, die Kunden buchen können:</p>
+            <ul className="list-disc list-inside space-y-1 ml-1">
+              <li><strong>Name & Preis</strong> — Was kostet der Service?</li>
+              <li><strong>Dauer</strong> — Wie lange dauert der Termin?</li>
+              <li><strong>Pufferzeit</strong> — Zeit für Vor-/Nachbereitung</li>
+              <li><strong>Kapazität</strong> — Für Gruppen: wie viele Plätze?</li>
+              <li><strong>Kategorie</strong> — Sortierung auf der Buchungsseite</li>
+            </ul>
+            <p>Inaktive Services werden auf der Buchungsseite nicht angezeigt.</p>
+          </InfoButton>
         </div>
-        <button onClick={handleCreate} className="btn-primary flex items-center gap-2">
+        <button onClick={handleCreate} className="btn-primary flex items-center gap-2 shrink-0">
           <Plus size={18} />
-          Neuer Service
+          <span className="hidden sm:inline">Neuer Service</span>
+          <span className="sm:hidden">Neu</span>
         </button>
       </div>
 

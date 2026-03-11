@@ -2,6 +2,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { RevenueChart } from '@/components/dashboard/RevenueChart';
 import { OccupancyRate } from '@/components/dashboard/OccupancyRate';
 import { PopularTimesHeatmap } from '@/components/dashboard/PopularTimesHeatmap';
+import { InfoButton } from '@/components/ui/InfoButton';
 
 export function AnalyticsPage() {
   const { stats, isLoading } = useAnalytics();
@@ -18,9 +19,20 @@ export function AnalyticsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Statistiken</h1>
-        <p className="text-gray-500 text-sm">Detaillierte Auswertungen Ihrer Buchungen.</p>
+      <div className="flex items-center gap-2 mb-6">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Statistiken</h1>
+          <p className="text-gray-500 text-sm">Detaillierte Auswertungen Ihrer Buchungen.</p>
+        </div>
+        <InfoButton title="Statistiken">
+          <p>Hier sehen Sie detaillierte Auswertungen:</p>
+          <ul className="list-disc list-inside space-y-1 ml-1">
+            <li><strong>Umsatz-Chart</strong> — Tägliche Umsatzentwicklung der letzten 30 Tage</li>
+            <li><strong>Auslastung</strong> — Wie viel Prozent Ihrer verfügbaren Zeit gebucht ist</li>
+            <li><strong>Stoßzeiten</strong> — Wann buchen die meisten Kunden?</li>
+            <li><strong>No-Show Rate</strong> — Anteil der nicht wahrgenommenen Termine</li>
+          </ul>
+        </InfoButton>
       </div>
 
       <div className="space-y-6">

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useCalendarStore, getViewTitle } from '@/store/calendar-store';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
+import { InfoButton } from '@/components/ui/InfoButton';
 import type { CalendarView } from '@/types';
 
 const views: { key: CalendarView; label: string }[] = [
@@ -54,6 +55,16 @@ export function CalendarHeader({ onAddBlocker }: CalendarHeaderProps) {
         >
           Heute
         </button>
+
+        <InfoButton title="Kalender">
+          <p>Verwalten Sie hier alle Ihre Termine:</p>
+          <ul className="list-disc list-inside space-y-1 ml-1">
+            <li>Wechseln Sie zwischen <strong>Tag</strong>, <strong>Woche</strong> und <strong>Monat</strong></li>
+            <li>Klicken Sie auf einen Termin für Details oder zum Stornieren</li>
+            <li><strong>Blocker</strong> sperren Zeiträume (z.B. Mittagspause, Urlaub)</li>
+            <li><strong>iCal Export</strong> synchronisiert mit Google Calendar, Apple etc.</li>
+          </ul>
+        </InfoButton>
       </div>
 
       <div className="flex items-center gap-2">

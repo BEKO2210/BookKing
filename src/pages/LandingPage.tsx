@@ -54,6 +54,7 @@ export function LandingPage() {
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,55 +64,96 @@ function Navbar() {
   }, []);
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-100'
-          : 'bg-transparent'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
-              <Calendar size={18} className="text-white" />
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-100'
+            : 'bg-transparent'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+                <Calendar size={18} className="text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">
+                Book<span className="text-blue-600">King</span>
+              </span>
             </div>
-            <span className="text-xl font-bold text-gray-900">
-              Book<span className="text-blue-600">King</span>
-            </span>
-          </div>
 
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              Features
-            </a>
-            <a href="#demo" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              Demo
-            </a>
-            <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              Preise
-            </a>
-          </div>
+            <div className="hidden md:flex items-center gap-8">
+              <a href="#features" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Features
+              </a>
+              <a href="#demo" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Demo
+              </a>
+              <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                Preise
+              </a>
+              <button
+                onClick={() => navigate('/info/how-it-works')}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                So funktioniert's
+              </button>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-gray-900 px-4 py-2 rounded-xl transition-colors"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all active:scale-[0.98]"
-            >
-              Kostenlos starten
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="hidden sm:inline-flex text-sm font-medium text-gray-600 hover:text-gray-900 px-4 py-2 rounded-xl transition-colors"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="hidden sm:inline-flex bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all active:scale-[0.98]"
+              >
+                Kostenlos starten
+              </button>
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900 rounded-lg"
+                aria-label="Menü"
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {mobileMenuOpen
+                    ? <path d="M18 6L6 18M6 6l12 12" />
+                    : <path d="M3 12h18M3 6h18M3 18h18" />
+                  }
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.nav>
+      </motion.nav>
+
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="absolute inset-0 bg-black/20" onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-100 shadow-lg p-4 space-y-2">
+            <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl">Features</a>
+            <a href="#demo" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl">Demo</a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl">Preise</a>
+            <button onClick={() => { navigate('/info/how-it-works'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl">So funktioniert's</button>
+            <button onClick={() => { navigate('/info/help'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl">Hilfe & FAQ</button>
+            <button onClick={() => { navigate('/info/privacy'); setMobileMenuOpen(false); }} className="block w-full text-left px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl">Datenschutz</button>
+            <div className="border-t border-gray-100 pt-2">
+              <button onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }} className="block w-full text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-semibold">
+                Kostenlos starten
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1092,29 +1134,64 @@ function CTASection() {
 // ═══════════════════════════════════════════
 
 function Footer() {
+  const navigate = useNavigate();
+
   return (
     <footer className="border-t border-gray-100 bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
-              <Calendar size={14} className="text-white" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+                <Calendar size={14} className="text-white" />
+              </div>
+              <span className="font-bold text-gray-900">
+                Book<span className="text-blue-600">King</span>
+              </span>
             </div>
-            <span className="font-bold text-gray-900">
-              Book<span className="text-blue-600">King</span>
-            </span>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Das intelligente Buchungssystem für Dienstleister. Einfach, schnell und als App installierbar.
+            </p>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-gray-500">
-            <a href="#features" className="hover:text-gray-700 transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-gray-700 transition-colors">Preise</a>
-            <a href="#demo" className="hover:text-gray-700 transition-colors">Demo</a>
+          {/* Navigation */}
+          <div>
+            <h4 className="font-semibold text-gray-900 text-sm mb-3">Navigation</h4>
+            <div className="space-y-2 text-sm">
+              <a href="#features" className="block text-gray-500 hover:text-gray-700 transition-colors">Features</a>
+              <a href="#pricing" className="block text-gray-500 hover:text-gray-700 transition-colors">Preise</a>
+              <a href="#demo" className="block text-gray-500 hover:text-gray-700 transition-colors">Demo</a>
+            </div>
           </div>
 
+          {/* Info */}
+          <div>
+            <h4 className="font-semibold text-gray-900 text-sm mb-3">Informationen</h4>
+            <div className="space-y-2 text-sm">
+              <button onClick={() => navigate('/info/how-it-works')} className="block text-gray-500 hover:text-gray-700 transition-colors">
+                So funktioniert's
+              </button>
+              <button onClick={() => navigate('/info/help')} className="block text-gray-500 hover:text-gray-700 transition-colors">
+                Hilfe & FAQ
+              </button>
+              <button onClick={() => navigate('/info/privacy')} className="block text-gray-500 hover:text-gray-700 transition-colors">
+                Datenschutz
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-200 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-sm text-gray-400">
             &copy; {new Date().getFullYear()} BookKing. Made with{' '}
             <Heart size={12} className="inline text-red-400 fill-red-400" /> in Deutschland.
           </p>
+          <div className="flex items-center gap-4 text-xs text-gray-400">
+            <button onClick={() => navigate('/info/privacy')} className="hover:text-gray-600 transition-colors">Datenschutz</button>
+            <span>&middot;</span>
+            <button onClick={() => navigate('/info/help')} className="hover:text-gray-600 transition-colors">Hilfe</button>
+          </div>
         </div>
       </div>
     </footer>

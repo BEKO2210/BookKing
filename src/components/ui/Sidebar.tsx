@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Download,
   X,
+  HelpCircle,
 } from 'lucide-react';
 import { useSettingsStore } from '@/store/settings-store';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -99,6 +100,23 @@ export function Sidebar() {
               Buchungsseite
             </a>
           )}
+
+          <div className="border-t border-gray-100 mt-3 pt-3">
+            <NavLink
+              to="/info/help"
+              onClick={() => !isDesktop && setSidebarOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`
+              }
+            >
+              <HelpCircle size={20} />
+              Hilfe & Info
+            </NavLink>
+          </div>
         </nav>
 
         {/* Install prompt */}
