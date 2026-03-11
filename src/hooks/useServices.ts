@@ -3,6 +3,7 @@ import { db, supabase, upsertToSupabase, deleteFromSupabase } from '@/lib/db';
 import type { Service } from '@/types';
 import { generateId } from '@/lib/utils';
 import { useSettingsStore } from '@/store/settings-store';
+import { isDemoMode, DEMO_SERVICES } from '@/lib/demo-data';
 
 export function useServices() {
   const provider = useSettingsStore((s) => s.provider);
@@ -12,6 +13,8 @@ export function useServices() {
   const query = useQuery({
     queryKey: ['services', providerId],
     queryFn: async (): Promise<Service[]> => {
+      if (isDemoMode()) return DEMO_SERVICES;
+
       const { data, error } = await supabase
         .from('services')
         .select('*')
@@ -19,11 +22,9 @@ export function useServices() {
         .order('sort_order');
 
       if (error || !data) {
-        // Fallback to local Dexie cache
         return db.services.where('providerId').equals(providerId).sortBy('sortOrder');
       }
 
-      // Sync to local cache
       const services = data as unknown as Service[];
       await db.services.where('providerId').equals(providerId).delete();
       await db.services.bulkPut(services);

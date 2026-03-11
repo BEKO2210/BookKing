@@ -5,6 +5,7 @@ import type { Booking, BookingFormData, Customer } from '@/types';
 import { generateId, generateToken } from '@/lib/utils';
 import { calculateEndTime } from '@/lib/slot-engine';
 import { useSettingsStore } from '@/store/settings-store';
+import { isDemoMode, DEMO_BOOKINGS } from '@/lib/demo-data';
 
 export function useBookings(dateRange?: { from: string; to: string }) {
   const provider = useSettingsStore((s) => s.provider);
@@ -14,6 +15,14 @@ export function useBookings(dateRange?: { from: string; to: string }) {
   const query = useQuery({
     queryKey: ['bookings', providerId, dateRange?.from, dateRange?.to],
     queryFn: async (): Promise<Booking[]> => {
+      if (isDemoMode()) {
+        let result = DEMO_BOOKINGS;
+        if (dateRange) {
+          result = result.filter((b) => b.date >= dateRange.from && b.date <= dateRange.to);
+        }
+        return result;
+      }
+
       let q = supabase
         .from('bookings')
         .select('*')

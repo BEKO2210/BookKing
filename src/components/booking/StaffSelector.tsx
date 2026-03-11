@@ -2,31 +2,17 @@ import { motion } from 'framer-motion';
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 import { useBookingStore } from '@/store/booking-store';
 import { getInitials, stringToColor, getContrastColor } from '@/lib/utils';
-
-// Demo staff for development — in production, loaded from Supabase
-const DEMO_STAFF = [
-  {
-    id: 'staff-1',
-    providerId: 'demo-provider-001',
-    name: 'Maria Schmidt',
-    email: 'maria@demo.de',
-    specialties: ['Haarschnitt', 'Färben'],
-    serviceIds: [],
-    isActive: true,
-  },
-  {
-    id: 'staff-2',
-    providerId: 'demo-provider-001',
-    name: 'Thomas Weber',
-    email: 'thomas@demo.de',
-    specialties: ['Styling', 'Bartpflege'],
-    serviceIds: [],
-    isActive: true,
-  },
-];
+import { DEMO_STAFF } from '@/lib/demo-data';
 
 export function StaffSelector() {
-  const { selectStaff, nextStep, prevStep } = useBookingStore();
+  const { selectStaff, nextStep, prevStep, selectedService } = useBookingStore();
+
+  // Filter staff who can perform the selected service
+  const availableStaff = selectedService
+    ? DEMO_STAFF.filter(
+        (s) => s.serviceIds.length === 0 || s.serviceIds.includes(selectedService.id),
+      )
+    : DEMO_STAFF;
 
   const handleSelect = (staff: (typeof DEMO_STAFF)[number] | null) => {
     selectStaff(
@@ -77,7 +63,7 @@ export function StaffSelector() {
           </div>
         </motion.button>
 
-        {DEMO_STAFF.map((staff, i) => {
+        {availableStaff.map((staff, i) => {
           const nameParts = staff.name.split(' ');
           const initials = getInitials(nameParts[0] ?? '', nameParts[1] ?? '');
           const bgColor = stringToColor(staff.name);

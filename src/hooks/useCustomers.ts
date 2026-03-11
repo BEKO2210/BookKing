@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, supabase, upsertToSupabase, deleteFromSupabase } from '@/lib/db';
 import type { Customer } from '@/types';
 import { useSettingsStore } from '@/store/settings-store';
+import { isDemoMode, DEMO_CUSTOMERS } from '@/lib/demo-data';
 
 export function useCustomers() {
   const provider = useSettingsStore((s) => s.provider);
@@ -11,6 +12,8 @@ export function useCustomers() {
   const query = useQuery({
     queryKey: ['customers', providerId],
     queryFn: async (): Promise<Customer[]> => {
+      if (isDemoMode()) return DEMO_CUSTOMERS;
+
       const { data, error } = await supabase
         .from('customers')
         .select('*')
@@ -57,6 +60,10 @@ export function useCustomer(customerId: string | undefined) {
     queryKey: ['customer', customerId],
     queryFn: async (): Promise<Customer | null> => {
       if (!customerId) return null;
+
+      if (isDemoMode()) {
+        return DEMO_CUSTOMERS.find((c) => c.id === customerId) ?? null;
+      }
 
       const { data, error } = await supabase
         .from('customers')

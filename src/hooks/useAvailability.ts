@@ -3,6 +3,7 @@ import { db, supabase, upsertToSupabase, deleteFromSupabase } from '@/lib/db';
 import type { Availability, Blocker } from '@/types';
 import { generateId } from '@/lib/utils';
 import { useSettingsStore } from '@/store/settings-store';
+import { isDemoMode, DEMO_AVAILABILITY, DEMO_BLOCKERS } from '@/lib/demo-data';
 
 export function useAvailability() {
   const provider = useSettingsStore((s) => s.provider);
@@ -12,6 +13,8 @@ export function useAvailability() {
   const query = useQuery({
     queryKey: ['availability', providerId],
     queryFn: async (): Promise<Availability[]> => {
+      if (isDemoMode()) return DEMO_AVAILABILITY;
+
       const { data, error } = await supabase
         .from('availability')
         .select('*')
@@ -62,6 +65,8 @@ export function useBlockers() {
   const query = useQuery({
     queryKey: ['blockers', providerId],
     queryFn: async (): Promise<Blocker[]> => {
+      if (isDemoMode()) return DEMO_BLOCKERS;
+
       const { data, error } = await supabase
         .from('blockers')
         .select('*')
