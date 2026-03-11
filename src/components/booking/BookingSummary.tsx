@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { ArrowLeft, Calendar, Clock, User, CreditCard } from 'lucide-react';
 import { useBookingStore, calculateTotalPrice, calculateTotalDuration } from '@/store/booking-store';
 import { useCreateBooking } from '@/hooks/useBookings';
 import { formatDate, formatPrice, formatDuration, formatTime } from '@/lib/utils';
+import { useLicense } from '@/hooks/useLicense';
+import { UpgradeBanner, UpgradeModal } from '@/components/license/UpgradeBanner';
 
 export function BookingSummary() {
   const store = useBookingStore();
@@ -19,12 +22,20 @@ export function BookingSummary() {
   } = store;
 
   const createBooking = useCreateBooking();
+  const { canBook, needsUpgrade, almostAtLimit } = useLicense();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const totalPrice = calculateTotalPrice(store);
   const totalDuration = calculateTotalDuration(store);
 
   const handleConfirm = async () => {
     if (!selectedService || !selectedDate || !selectedTime || !formData.email) return;
+
+    // Check license before booking
+    if (!canBook) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
     setSubmitting(true);
 
@@ -47,8 +58,11 @@ export function BookingSummary() {
       });
 
       confirmBooking(result.booking.confirmationToken);
-    } catch {
+    } catch (error) {
       setSubmitting(false);
+      if (error instanceof Error && error.message === 'BOOKING_LIMIT_REACHED') {
+        setShowUpgradeModal(true);
+      }
     }
   };
 
@@ -66,6 +80,9 @@ export function BookingSummary() {
 
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Zusammenfassung</h2>
       <p className="text-gray-500 mb-6">Bitte überprüfen Sie Ihre Buchung.</p>
+
+      {(needsUpgrade || almostAtLimit) && <UpgradeBanner />}
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} />
 
       <div className="card p-5 space-y-4 mb-6">
         <div className="flex items-start gap-3">
@@ -168,13 +185,19 @@ export function BookingSummary() {
       <button
         onClick={handleConfirm}
         disabled={isSubmitting}
-        className="btn-primary w-full text-base py-3"
+        className={`w-full text-base py-3 ${
+          needsUpgrade
+            ? 'btn-primary bg-amber-500 hover:bg-amber-600'
+            : 'btn-primary'
+        }`}
       >
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             Wird gebucht...
           </span>
+        ) : needsUpgrade ? (
+          'Upgrade erforderlich — Plan wählen'
         ) : (
           'Termin verbindlich buchen'
         )}

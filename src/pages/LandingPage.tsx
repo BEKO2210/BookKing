@@ -884,17 +884,16 @@ function PricingSection() {
 
   const plans = [
     {
-      name: 'Starter',
+      name: 'Free',
       price: '0',
-      desc: 'Perfekt zum Testen',
+      desc: '10 Buchungen kostenlos',
       features: [
-        '50 Buchungen/Monat',
+        '10 Buchungen gratis',
         '1 Mitarbeiter',
         'Buchungsseite',
         'E-Mail Benachrichtigungen',
-        'iCal Export',
       ],
-      cta: 'Kostenlos starten',
+      cta: 'Kostenlos testen',
       featured: false,
     },
     {

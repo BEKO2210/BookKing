@@ -5,6 +5,7 @@ import type { Booking, BookingFormData, Customer } from '@/types';
 import { generateId, generateToken } from '@/lib/utils';
 import { calculateEndTime } from '@/lib/slot-engine';
 import { useSettingsStore } from '@/store/settings-store';
+import { useLicenseStore } from '@/store/license-store';
 import { isDemoMode, DEMO_BOOKINGS } from '@/lib/demo-data';
 
 export function useBookings(dateRange?: { from: string; to: string }) {
@@ -93,6 +94,12 @@ export function useCreateBooking() {
     }) => {
       const providerId = provider?.id ?? '';
 
+      // License check: block if booking limit reached
+      const licenseStore = useLicenseStore.getState();
+      if (!licenseStore.canBook()) {
+        throw new Error('BOOKING_LIMIT_REACHED');
+      }
+
       // Find or create customer
       const customer = await findOrCreateCustomer(providerId, formData);
 
@@ -116,6 +123,9 @@ export function useCreateBooking() {
 
       await db.bookings.put(booking);
       if (!isDemoMode()) await upsertToSupabase('bookings', booking);
+
+      // Increment booking counter after successful creation
+      licenseStore.incrementBookings();
 
       return { booking, customer };
     },

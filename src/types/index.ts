@@ -210,6 +210,86 @@ export interface WaitlistEntry {
   notifiedAt?: string;
 }
 
+// ═══════════════════════════════════════════
+// License & Tier System
+// ═══════════════════════════════════════════
+
+export type LicenseTier = 'free' | 'starter' | 'professional' | 'business';
+
+export interface LicenseInfo {
+  tier: LicenseTier;
+  bookingsUsed: number;
+  bookingsLimit: number;
+  staffLimit: number;
+  validUntil?: string;
+  activatedAt: string;
+}
+
+export const LICENSE_TIERS: Record<LicenseTier, {
+  name: string;
+  price: number;
+  bookingsLimit: number;
+  staffLimit: number;
+  features: string[];
+}> = {
+  free: {
+    name: 'Free',
+    price: 0,
+    bookingsLimit: 10,
+    staffLimit: 1,
+    features: [
+      '10 Buchungen gesamt',
+      '1 Mitarbeiter',
+      'Buchungsseite',
+      'E-Mail Benachrichtigungen',
+    ],
+  },
+  starter: {
+    name: 'Starter',
+    price: 0,
+    bookingsLimit: 50,
+    staffLimit: 1,
+    features: [
+      '50 Buchungen/Monat',
+      '1 Mitarbeiter',
+      'Buchungsseite',
+      'E-Mail Benachrichtigungen',
+      'iCal Export',
+    ],
+  },
+  professional: {
+    name: 'Professional',
+    price: 19,
+    bookingsLimit: -1, // unlimited
+    staffLimit: 5,
+    features: [
+      'Unbegrenzte Buchungen',
+      'Bis 5 Mitarbeiter',
+      'Embeddable Widget',
+      'Push Notifications',
+      'Kunden-CRM',
+      'Analytics Dashboard',
+      'Payment Integration',
+      'Prioritäts-Support',
+    ],
+  },
+  business: {
+    name: 'Business',
+    price: 49,
+    bookingsLimit: -1, // unlimited
+    staffLimit: 20,
+    features: [
+      'Alles aus Professional',
+      'Bis 20 Mitarbeiter',
+      'Multi-Standort',
+      'API-Zugang',
+      'White-Label Option',
+      'Custom Domain',
+      'Persönlicher Ansprechpartner',
+    ],
+  },
+};
+
 export type CalendarView = 'day' | 'week' | 'month';
 
 export interface CalendarEvent {
