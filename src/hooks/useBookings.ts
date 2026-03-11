@@ -45,9 +45,9 @@ export function useBookings(dateRange?: { from: string; to: string }) {
     staleTime: 10_000,
   });
 
-  // Realtime subscription for new bookings
+  // Realtime subscription for new bookings (skip in demo mode)
   useEffect(() => {
-    if (!providerId) return;
+    if (!providerId || isDemoMode()) return;
 
     const channel = supabase
       .channel('bookings-realtime')

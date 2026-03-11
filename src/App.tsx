@@ -4,6 +4,7 @@ import { Suspense, lazy, useEffect } from 'react';
 
 import { LandingPage } from '@/pages/LandingPage';
 import { useSettingsStore, DEMO_PROVIDER } from '@/store/settings-store';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Lazy-load dashboard pages so landing page loads instantly
 const PublicBookingPage = lazy(() =>
@@ -93,9 +94,11 @@ function DashboardLayout() {
         </header>
 
         <div className="p-4 lg:p-8 pb-24 lg:pb-8 max-w-6xl">
-          <Suspense fallback={<LoadingSpinner />}>
-            <Outlet />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </main>
 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   Calendar,
   TrendingUp,
@@ -14,13 +15,38 @@ import { PopularTimesHeatmap } from './PopularTimesHeatmap';
 
 export function BookingDashboard() {
   const { stats, isLoading } = useAnalytics();
+  const [showTimeout, setShowTimeout] = useState(false);
 
-  if (isLoading || !stats) {
+  // Safety: if still loading after 5s, show fallback instead of infinite skeleton
+  useEffect(() => {
+    if (!isLoading && stats) {
+      setShowTimeout(false);
+      return;
+    }
+    const timer = setTimeout(() => setShowTimeout(true), 5000);
+    return () => clearTimeout(timer);
+  }, [isLoading, stats]);
+
+  if ((isLoading || !stats) && !showTimeout) {
     return (
       <div className="space-y-4">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="card h-24 animate-pulse bg-gray-50" />
         ))}
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="card p-8 text-center">
+        <p className="text-gray-500 mb-3">Daten konnten nicht geladen werden.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="btn-primary text-sm"
+        >
+          Seite neu laden
+        </button>
       </div>
     );
   }

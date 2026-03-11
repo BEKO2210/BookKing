@@ -23,7 +23,11 @@ export function useAnalytics(): {
   const isLoading = loadingBookings || loadingCustomers || loadingServices;
 
   const stats = useMemo((): DashboardStats | null => {
-    if (isLoading) return null;
+    // Only block on loading if we have NO data at all yet.
+    // Once any data arrives, compute stats from what's available.
+    if (isLoading && bookings.length === 0 && customers.length === 0 && services.length === 0) {
+      return null;
+    }
 
     const confirmed = bookings.filter(
       (b) => b.status === 'confirmed' || b.status === 'completed',
