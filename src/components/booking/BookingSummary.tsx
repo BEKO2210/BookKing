@@ -43,6 +43,7 @@ export function BookingSummary() {
           notes: formData.notes,
         },
         serviceDuration: totalDuration,
+        totalPrice,
       });
 
       confirmBooking(result.booking.confirmationToken);

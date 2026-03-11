@@ -90,7 +90,7 @@ export function Sidebar() {
           {/* Public booking link */}
           {provider && (
             <a
-              href={`/book/${provider.bookingSlug}`}
+              href={`#/book/${provider.bookingSlug}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"

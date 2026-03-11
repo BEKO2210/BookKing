@@ -38,7 +38,7 @@ export function useServices() {
     mutationFn: async (service: Omit<Service, 'id'>) => {
       const newService: Service = { ...service, id: generateId() };
       await db.services.put(newService);
-      await upsertToSupabase('services', newService);
+      if (!isDemoMode()) await upsertToSupabase('services', newService);
       return newService;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['services'] }),
@@ -47,7 +47,7 @@ export function useServices() {
   const updateService = useMutation({
     mutationFn: async (service: Service) => {
       await db.services.put(service);
-      await upsertToSupabase('services', service);
+      if (!isDemoMode()) await upsertToSupabase('services', service);
       return service;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['services'] }),
@@ -56,7 +56,7 @@ export function useServices() {
   const deleteService = useMutation({
     mutationFn: async (id: string) => {
       await db.services.delete(id);
-      await deleteFromSupabase('services', id);
+      if (!isDemoMode()) await deleteFromSupabase('services', id);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['services'] }),
   });

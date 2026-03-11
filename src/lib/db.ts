@@ -115,16 +115,19 @@ export async function deleteFromSupabase(
 // Case conversion utilities
 // ═══════════════════════════════════════════
 
+function convertValue(value: unknown, converter: (obj: Record<string, unknown>) => Record<string, unknown>): unknown {
+  if (value === null || typeof value !== 'object') return value;
+  if (Array.isArray(value)) return value.map((item) => convertValue(item, converter));
+  return converter(value as Record<string, unknown>);
+}
+
 function snakeToCamel(obj: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj)) {
     const camelKey = key.replace(/_([a-z])/g, (_, letter: string) =>
       letter.toUpperCase(),
     );
-    result[camelKey] =
-      value !== null && typeof value === 'object' && !Array.isArray(value)
-        ? snakeToCamel(value as Record<string, unknown>)
-        : value;
+    result[camelKey] = convertValue(value, snakeToCamel);
   }
   return result;
 }
@@ -136,10 +139,7 @@ function camelToSnake(obj: Record<string, unknown>): Record<string, unknown> {
       /[A-Z]/g,
       (letter) => `_${letter.toLowerCase()}`,
     );
-    result[snakeKey] =
-      value !== null && typeof value === 'object' && !Array.isArray(value)
-        ? camelToSnake(value as Record<string, unknown>)
-        : value;
+    result[snakeKey] = convertValue(value, camelToSnake);
   }
   return result;
 }

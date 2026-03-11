@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, Calendar, Download, ArrowRight } from 'lucide-react';
 import { useBookingStore } from '@/store/booking-store';
 import { generateICalEvent, downloadICalFile } from '@/lib/ical-generator';
+import { calculateEndTime } from '@/lib/slot-engine';
 import { formatDate, formatTime, formatDuration } from '@/lib/utils';
 import { useSettingsStore } from '@/store/settings-store';
 
@@ -20,7 +21,7 @@ export function BookingConfirmation() {
       customerId: '',
       date: selectedDate,
       startTime: selectedTime,
-      endTime: selectedTime, // simplified
+      endTime: calculateEndTime(selectedTime, selectedService.duration),
       status: 'confirmed' as const,
       addons: [],
       totalPrice: selectedService.price,

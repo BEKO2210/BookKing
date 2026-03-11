@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StickyNote, Save } from 'lucide-react';
 import type { Customer } from '@/types';
 import { useCustomers } from '@/hooks/useCustomers';
@@ -11,6 +11,12 @@ export function CustomerNotes({ customer }: CustomerNotesProps) {
   const { updateCustomer } = useCustomers();
   const [notes, setNotes] = useState(customer.notes ?? '');
   const [isDirty, setIsDirty] = useState(false);
+
+  // Sync notes when switching to a different customer
+  useEffect(() => {
+    setNotes(customer.notes ?? '');
+    setIsDirty(false);
+  }, [customer.id, customer.notes]);
 
   const handleSave = () => {
     updateCustomer.mutate({ ...customer, notes: notes || undefined });

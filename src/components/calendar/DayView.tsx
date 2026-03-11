@@ -44,8 +44,10 @@ export function DayView() {
     }
 
     for (const blocker of blockers) {
-      const bStart = blocker.startDate.split('T')[0];
-      if (bStart !== dateStr && !blocker.isAllDay) continue;
+      const bStart = blocker.startDate.split('T')[0] ?? '';
+      const bEnd = blocker.endDate.split('T')[0] ?? '';
+      // Check if blocker overlaps with current day (supports multi-day blockers)
+      if (dateStr < bStart || dateStr > bEnd) continue;
 
       evts.push({
         id: blocker.id,

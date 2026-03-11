@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
 import { usePayment } from '@/hooks/usePayment';
 import { formatPrice as fmtPrice } from '@/lib/payment';
@@ -13,8 +14,14 @@ export function PaymentStep({ amount, currency, onSuccess, onSkip }: PaymentStep
   const { paymentEnabled, isProcessing, error, processPayment, calculateDeposit } =
     usePayment();
 
+  // Skip payment step if not enabled — must be in useEffect, not during render
+  useEffect(() => {
+    if (!paymentEnabled) {
+      onSkip();
+    }
+  }, [paymentEnabled, onSkip]);
+
   if (!paymentEnabled) {
-    onSkip();
     return null;
   }
 

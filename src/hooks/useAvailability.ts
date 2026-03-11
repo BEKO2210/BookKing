@@ -35,7 +35,7 @@ export function useAvailability() {
     mutationFn: async (avail: Omit<Availability, 'id'> & { id?: string }) => {
       const item: Availability = { ...avail, id: avail.id ?? generateId() };
       await db.availability.put(item);
-      await upsertToSupabase('availability', item);
+      if (!isDemoMode()) await upsertToSupabase('availability', item);
       return item;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['availability'] }),
@@ -44,7 +44,7 @@ export function useAvailability() {
   const deleteAvailability = useMutation({
     mutationFn: async (id: string) => {
       await db.availability.delete(id);
-      await deleteFromSupabase('availability', id);
+      if (!isDemoMode()) await deleteFromSupabase('availability', id);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['availability'] }),
   });
@@ -87,7 +87,7 @@ export function useBlockers() {
     mutationFn: async (blocker: Omit<Blocker, 'id'>) => {
       const item: Blocker = { ...blocker, id: generateId() };
       await db.blockers.put(item);
-      await upsertToSupabase('blockers', item);
+      if (!isDemoMode()) await upsertToSupabase('blockers', item);
       return item;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['blockers'] }),
@@ -96,7 +96,7 @@ export function useBlockers() {
   const deleteBlocker = useMutation({
     mutationFn: async (id: string) => {
       await db.blockers.delete(id);
-      await deleteFromSupabase('blockers', id);
+      if (!isDemoMode()) await deleteFromSupabase('blockers', id);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['blockers'] }),
   });

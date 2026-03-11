@@ -33,7 +33,7 @@ export function useCustomers() {
   const updateCustomer = useMutation({
     mutationFn: async (customer: Customer) => {
       await db.customers.put(customer);
-      await upsertToSupabase('customers', customer);
+      if (!isDemoMode()) await upsertToSupabase('customers', customer);
       return customer;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['customers'] }),
@@ -42,7 +42,7 @@ export function useCustomers() {
   const deleteCustomer = useMutation({
     mutationFn: async (id: string) => {
       await db.customers.delete(id);
-      await deleteFromSupabase('customers', id);
+      if (!isDemoMode()) await deleteFromSupabase('customers', id);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['customers'] }),
   });

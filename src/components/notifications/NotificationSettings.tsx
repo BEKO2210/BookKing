@@ -5,7 +5,9 @@ import { requestPushPermission } from '@/lib/notifications';
 
 export function NotificationSettings() {
   const { provider, updateSettings } = useSettingsStore();
-  const [pushEnabled, setPushEnabled] = useState(Notification.permission === 'granted');
+  const [pushEnabled, setPushEnabled] = useState(
+    typeof Notification !== 'undefined' && Notification.permission === 'granted',
+  );
 
   const settings = provider?.settings;
   if (!settings) return null;

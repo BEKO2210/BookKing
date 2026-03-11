@@ -85,9 +85,11 @@ export function useCreateBooking() {
     mutationFn: async ({
       formData,
       serviceDuration,
+      totalPrice,
     }: {
       formData: BookingFormData;
       serviceDuration: number;
+      totalPrice: number;
     }) => {
       const providerId = provider?.id ?? '';
 
@@ -105,7 +107,7 @@ export function useCreateBooking() {
         endTime: calculateEndTime(formData.time, serviceDuration),
         status: 'confirmed',
         addons: formData.addons,
-        totalPrice: 0, // calculated by caller
+        totalPrice,
         depositPaid: 0,
         notes: formData.notes,
         confirmationToken: generateToken(),
@@ -113,7 +115,7 @@ export function useCreateBooking() {
       };
 
       await db.bookings.put(booking);
-      await upsertToSupabase('bookings', booking);
+      if (!isDemoMode()) await upsertToSupabase('bookings', booking);
 
       return { booking, customer };
     },

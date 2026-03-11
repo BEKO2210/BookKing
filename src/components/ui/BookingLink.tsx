@@ -8,7 +8,7 @@ export function BookingLink() {
 
   if (!provider) return null;
 
-  const bookingUrl = `${window.location.origin}/book/${provider.bookingSlug}`;
+  const bookingUrl = `${window.location.origin}${window.location.pathname}#/book/${provider.bookingSlug}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(bookingUrl);
