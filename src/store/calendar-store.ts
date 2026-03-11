@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { format, addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, startOfWeek } from 'date-fns';
+import { de } from 'date-fns/locale';
 import type { CalendarView, CalendarEvent } from '@/types';
 
 interface CalendarState {
@@ -77,13 +78,13 @@ export function getWeekDates(date: Date): Date[] {
 export function getViewTitle(view: CalendarView, date: Date): string {
   switch (view) {
     case 'day':
-      return format(date, 'EEEE, d. MMMM yyyy');
+      return format(date, 'EEEE, d. MMMM yyyy', { locale: de });
     case 'week': {
       const weekStart = startOfWeek(date, { weekStartsOn: 1 });
       const weekEnd = addDays(weekStart, 6);
-      return `${format(weekStart, 'd. MMM')} – ${format(weekEnd, 'd. MMM yyyy')}`;
+      return `${format(weekStart, 'd. MMM', { locale: de })} – ${format(weekEnd, 'd. MMM yyyy', { locale: de })}`;
     }
     case 'month':
-      return format(date, 'MMMM yyyy');
+      return format(date, 'MMMM yyyy', { locale: de });
   }
 }

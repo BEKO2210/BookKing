@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useSettingsStore } from '@/store/settings-store';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -26,6 +27,7 @@ const navItems = [
 export function Sidebar() {
   const { sidebarOpen, setSidebarOpen, provider } = useSettingsStore();
   const { canInstall, install } = usePWAInstall();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   return (
     <>
@@ -44,8 +46,9 @@ export function Sidebar() {
 
       <motion.aside
         initial={false}
-        animate={{ x: sidebarOpen ? 0 : -280 }}
-        className="fixed left-0 top-0 bottom-0 w-[280px] bg-white border-r border-gray-100 z-50 flex flex-col lg:translate-x-0 lg:static"
+        animate={{ x: isDesktop || sidebarOpen ? 0 : -280 }}
+        transition={{ type: 'tween', duration: isDesktop ? 0 : 0.2 }}
+        className={`fixed left-0 top-0 bottom-0 w-[280px] bg-white border-r border-gray-100 z-50 flex flex-col ${isDesktop ? 'static' : ''}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
@@ -70,7 +73,7 @@ export function Sidebar() {
             <NavLink
               key={item.to}
               to={item.to}
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => !isDesktop && setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                   isActive

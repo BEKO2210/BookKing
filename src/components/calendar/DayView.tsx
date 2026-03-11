@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 import { useCalendarStore } from '@/store/calendar-store';
 import { useBookings } from '@/hooks/useBookings';
 import { useBlockers } from '@/hooks/useAvailability';
@@ -78,7 +79,7 @@ export function DayView() {
     <div className="card overflow-hidden">
       <div className="p-4 border-b border-gray-100">
         <h3 className="font-semibold text-gray-900">
-          {format(currentDate, 'EEEE, d. MMMM')}
+          {format(currentDate, 'EEEE, d. MMMM', { locale: de })}
         </h3>
         <p className="text-sm text-gray-500">
           {events.filter((e) => e.type === 'booking').length} Termine

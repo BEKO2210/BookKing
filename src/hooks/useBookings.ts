@@ -143,12 +143,14 @@ export function useUpdateBookingStatus() {
         updates.cancelReason = cancelReason;
       }
 
-      const { error } = await supabase
-        .from('bookings')
-        .update(updates)
-        .eq('id', bookingId);
+      if (!isDemoMode()) {
+        const { error } = await supabase
+          .from('bookings')
+          .update(updates)
+          .eq('id', bookingId);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
       await db.bookings.update(bookingId, updates);
     },
@@ -162,22 +164,31 @@ async function findOrCreateCustomer(
   providerId: string,
   formData: BookingFormData,
 ): Promise<Customer> {
-  // Try to find existing customer by email
-  const { data: existing } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('provider_id', providerId)
-    .eq('email', formData.email)
-    .single();
-
-  if (existing) {
-    const customer = existing as unknown as Customer;
-    // Update last booking date
-    await supabase
+  if (!isDemoMode()) {
+    // Try to find existing customer by email
+    const { data: existing } = await supabase
       .from('customers')
-      .update({ last_booking_at: new Date().toISOString() })
-      .eq('id', customer.id);
-    return customer;
+      .select('*')
+      .eq('provider_id', providerId)
+      .eq('email', formData.email)
+      .single();
+
+    if (existing) {
+      const customer = existing as unknown as Customer;
+      // Update last booking date
+      await supabase
+        .from('customers')
+        .update({ last_booking_at: new Date().toISOString() })
+        .eq('id', customer.id);
+      return customer;
+    }
+  } else {
+    // In demo mode, check Dexie local DB
+    const localCustomer = await db.customers
+      .where('email')
+      .equals(formData.email)
+      .first();
+    if (localCustomer) return localCustomer;
   }
 
   // Create new customer
@@ -195,7 +206,9 @@ async function findOrCreateCustomer(
     lastBookingAt: new Date().toISOString(),
   };
 
-  await upsertToSupabase('customers', customer);
+  if (!isDemoMode()) {
+    await upsertToSupabase('customers', customer);
+  }
   await db.customers.put(customer);
 
   return customer;
