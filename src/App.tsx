@@ -1,22 +1,46 @@
 import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useEffect } from 'react';
-
-import { Sidebar } from '@/components/ui/Sidebar';
-import { BottomNav } from '@/components/ui/BottomNav';
-import { OfflineBanner } from '@/components/OfflineBanner';
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { Suspense, lazy, useEffect } from 'react';
 
 import { LandingPage } from '@/pages/LandingPage';
-import { PublicBookingPage } from '@/pages/PublicBookingPage';
-import { Dashboard } from '@/pages/Dashboard';
-import { CalendarPage } from '@/pages/CalendarPage';
-import { ServicesPage } from '@/pages/ServicesPage';
-import { CustomersPage } from '@/pages/CustomersPage';
-import { AnalyticsPage } from '@/pages/AnalyticsPage';
-import { SettingsPage } from '@/pages/SettingsPage';
-
 import { useSettingsStore, DEMO_PROVIDER } from '@/store/settings-store';
+
+// Lazy-load dashboard pages so landing page loads instantly
+const PublicBookingPage = lazy(() =>
+  import('@/pages/PublicBookingPage').then((m) => ({ default: m.PublicBookingPage })),
+);
+const Dashboard = lazy(() =>
+  import('@/pages/Dashboard').then((m) => ({ default: m.Dashboard })),
+);
+const CalendarPage = lazy(() =>
+  import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })),
+);
+const ServicesPage = lazy(() =>
+  import('@/pages/ServicesPage').then((m) => ({ default: m.ServicesPage })),
+);
+const CustomersPage = lazy(() =>
+  import('@/pages/CustomersPage').then((m) => ({ default: m.CustomersPage })),
+);
+const AnalyticsPage = lazy(() =>
+  import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })),
+);
+const SettingsPage = lazy(() =>
+  import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+);
+
+// Lazy-load heavy dashboard layout components
+const Sidebar = lazy(() =>
+  import('@/components/ui/Sidebar').then((m) => ({ default: m.Sidebar })),
+);
+const BottomNav = lazy(() =>
+  import('@/components/ui/BottomNav').then((m) => ({ default: m.BottomNav })),
+);
+const OfflineBanner = lazy(() =>
+  import('@/components/OfflineBanner').then((m) => ({ default: m.OfflineBanner })),
+);
+const PWAInstallPrompt = lazy(() =>
+  import('@/components/PWAInstallPrompt').then((m) => ({ default: m.PWAInstallPrompt })),
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,15 +52,30 @@ const queryClient = new QueryClient({
   },
 });
 
+function LoadingSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm text-gray-400">Laden...</p>
+      </div>
+    </div>
+  );
+}
+
 function DashboardLayout() {
   const { setSidebarOpen } = useSettingsStore();
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar />
+      <Suspense fallback={null}>
+        <Sidebar />
+      </Suspense>
 
       <main className="flex-1 lg:ml-0">
-        <OfflineBanner />
+        <Suspense fallback={null}>
+          <OfflineBanner />
+        </Suspense>
 
         {/* Top bar (mobile) */}
         <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
@@ -54,12 +93,16 @@ function DashboardLayout() {
         </header>
 
         <div className="p-4 lg:p-8 pb-24 lg:pb-8 max-w-6xl">
-          <Outlet />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Outlet />
+          </Suspense>
         </div>
       </main>
 
-      <BottomNav />
-      <PWAInstallPrompt />
+      <Suspense fallback={null}>
+        <BottomNav />
+        <PWAInstallPrompt />
+      </Suspense>
     </div>
   );
 }
@@ -78,11 +121,18 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <HashRouter>
         <Routes>
-          {/* Landing Page */}
+          {/* Landing Page — loads instantly, no lazy deps */}
           <Route path="/" element={<LandingPage />} />
 
           {/* Public booking page */}
-          <Route path="/book/:slug" element={<PublicBookingPage />} />
+          <Route
+            path="/book/:slug"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <PublicBookingPage />
+              </Suspense>
+            }
+          />
 
           {/* Dashboard routes */}
           <Route element={<DashboardLayout />}>

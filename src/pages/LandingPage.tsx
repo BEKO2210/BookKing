@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import {
   Calendar,
   Clock,
@@ -11,7 +11,6 @@ import {
   Globe,
   CreditCard,
   Shield,
-  Zap,
   ArrowRight,
   Check,
   Star,
@@ -25,9 +24,6 @@ import {
   Wifi,
   WifiOff,
   Layout,
-  Palette,
-  Code,
-  Monitor,
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════
