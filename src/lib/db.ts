@@ -80,11 +80,11 @@ export async function syncTableToLocal<T extends { id: string }>(
   return items;
 }
 
-export async function upsertToSupabase<T extends Record<string, unknown>>(
+export async function upsertToSupabase<T extends object>(
   tableName: string,
   item: T,
 ): Promise<T | null> {
-  const payload = camelToSnake(item);
+  const payload = camelToSnake(item as unknown as Record<string, unknown>);
   const { data, error } = await supabase
     .from(tableName)
     .upsert(payload)

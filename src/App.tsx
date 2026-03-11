@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
@@ -7,6 +7,7 @@ import { BottomNav } from '@/components/ui/BottomNav';
 import { OfflineBanner } from '@/components/OfflineBanner';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 
+import { LandingPage } from '@/pages/LandingPage';
 import { PublicBookingPage } from '@/pages/PublicBookingPage';
 import { Dashboard } from '@/pages/Dashboard';
 import { CalendarPage } from '@/pages/CalendarPage';
@@ -28,7 +29,7 @@ const queryClient = new QueryClient({
 });
 
 function DashboardLayout() {
-  const { sidebarOpen, setSidebarOpen } = useSettingsStore();
+  const { setSidebarOpen } = useSettingsStore();
 
   return (
     <div className="flex min-h-screen">
@@ -75,8 +76,11 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
+          {/* Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
           {/* Public booking page */}
           <Route path="/book/:slug" element={<PublicBookingPage />} />
 
@@ -90,11 +94,10 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
 
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   );
 }

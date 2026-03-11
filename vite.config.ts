@@ -4,11 +4,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'node:path';
 
 export default defineConfig({
+  base: '/BookKing/',
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/*.png', 'robots.txt'],
+      includeAssets: ['icons/*.png', 'icons/*.svg', 'robots.txt'],
       manifest: {
         name: 'BookKing — Termine buchen',
         short_name: 'BookKing',
@@ -17,22 +18,22 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait-primary',
-        scope: '/',
-        start_url: '/',
+        scope: '/BookKing/',
+        start_url: '/BookKing/',
         categories: ['business', 'productivity'],
         icons: [
           {
-            src: '/icons/icon-192.png',
+            src: '/BookKing/icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/icons/icon-512.png',
+            src: '/BookKing/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: '/icons/icon-512.png',
+            src: '/BookKing/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -65,6 +66,6 @@ export default defineConfig({
   },
   build: {
     target: 'ES2022',
-    sourcemap: true,
+    sourcemap: false,
   },
 });
