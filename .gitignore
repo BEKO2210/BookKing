@@ -8,4 +8,9 @@ dev-dist/
 .DS_Store
 *.sw?
 .vite/
-tsconfig.tsbuildinfo\ntsconfig.node.tsbuildinfo\nvite.config.js\nvite.config.d.ts\nwidget/vite.config.widget.js\nwidget/vite.config.widget.d.ts
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+widget/vite.config.widget.js
+widget/vite.config.widget.d.ts
