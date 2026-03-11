@@ -1,0 +1,51 @@
+import { useState } from 'react';
+import { StickyNote, Save } from 'lucide-react';
+import type { Customer } from '@/types';
+import { useCustomers } from '@/hooks/useCustomers';
+
+interface CustomerNotesProps {
+  customer: Customer;
+}
+
+export function CustomerNotes({ customer }: CustomerNotesProps) {
+  const { updateCustomer } = useCustomers();
+  const [notes, setNotes] = useState(customer.notes ?? '');
+  const [isDirty, setIsDirty] = useState(false);
+
+  const handleSave = () => {
+    updateCustomer.mutate({ ...customer, notes: notes || undefined });
+    setIsDirty(false);
+  };
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+          <StickyNote size={16} />
+          Notizen
+        </h3>
+        {isDirty && (
+          <button
+            onClick={handleSave}
+            className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1"
+          >
+            <Save size={12} />
+            Speichern
+          </button>
+        )}
+      </div>
+      <textarea
+        className="input-field min-h-[80px] resize-none text-sm"
+        value={notes}
+        onChange={(e) => {
+          setNotes(e.target.value);
+          setIsDirty(true);
+        }}
+        onBlur={() => {
+          if (isDirty) handleSave();
+        }}
+        placeholder="Notizen zu diesem Kunden..."
+      />
+    </div>
+  );
+}

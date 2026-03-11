@@ -1,0 +1,33 @@
+<!--
+  BookKing Widget — Copy & Paste Integration
+
+  1. Kopieren Sie diesen Code in Ihre Website
+  2. Ersetzen Sie "YOUR-SLUG" mit Ihrem Buchungs-Slug
+  3. Optional: Passen Sie Farbe und Sprache an
+-->
+
+<!-- Option 1: Web Component (empfohlen) -->
+<script src="https://your-domain.com/widget/book-me-widget.js" defer></script>
+<book-me-widget
+  provider="YOUR-SLUG"
+  color="#2563eb"
+  lang="de"
+  height="700"
+></book-me-widget>
+
+<!-- Option 2: iframe (Fallback für CMS ohne JS-Zugang) -->
+<!--
+<iframe
+  src="https://your-domain.com/book/YOUR-SLUG?embed=true"
+  width="100%"
+  height="700"
+  style="border: none; border-radius: 16px; max-width: 480px; margin: 0 auto; display: block;"
+  title="Terminbuchung"
+  loading="lazy"
+  allow="payment"
+></iframe>
+-->
+
+<!-- WordPress Shortcode (wenn BookKing WP Plugin installiert):
+  [bookking slug="YOUR-SLUG" color="#2563eb"]
+-->
