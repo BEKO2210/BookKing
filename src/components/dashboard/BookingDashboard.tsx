@@ -12,6 +12,7 @@ import { TodaySchedule } from './TodaySchedule';
 import { RevenueChart } from './RevenueChart';
 import { OccupancyRate } from './OccupancyRate';
 import { PopularTimesHeatmap } from './PopularTimesHeatmap';
+import { LicenseStatusWidget, UpgradeBanner } from '@/components/license/UpgradeBanner';
 
 export function BookingDashboard() {
   const { stats, isLoading } = useAnalytics();
@@ -53,6 +54,10 @@ export function BookingDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* License status & upgrade banner */}
+      <UpgradeBanner />
+      <LicenseStatusWidget />
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard
