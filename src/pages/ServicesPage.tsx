@@ -1,5 +1,5 @@
-import { ServiceManager } from '@/components/services/ServiceManager';
+import { ServiceManager } from "@/components/services/ServiceManager";
 
 export function ServicesPage() {
-  return <ServiceManager />;
+	return <ServiceManager />;
 }

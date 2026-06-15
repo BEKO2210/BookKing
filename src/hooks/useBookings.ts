@@ -1,227 +1,229 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
-import { db, supabase, upsertToSupabase } from '@/lib/db';
-import type { Booking, BookingFormData, Customer } from '@/types';
-import { generateId, generateToken } from '@/lib/utils';
-import { calculateEndTime } from '@/lib/slot-engine';
-import { useSettingsStore } from '@/store/settings-store';
-import { useLicenseStore } from '@/store/license-store';
-import { isDemoMode, DEMO_BOOKINGS } from '@/lib/demo-data';
+import { db, supabase, upsertToSupabase } from "@/lib/db";
+import { DEMO_BOOKINGS, isDemoMode } from "@/lib/demo-data";
+import { calculateEndTime } from "@/lib/slot-engine";
+import { generateId, generateToken } from "@/lib/utils";
+import { useLicenseStore } from "@/store/license-store";
+import { useSettingsStore } from "@/store/settings-store";
+import type { Booking, BookingFormData, Customer } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export function useBookings(dateRange?: { from: string; to: string }) {
-  const provider = useSettingsStore((s) => s.provider);
-  const providerId = provider?.id ?? '';
-  const queryClient = useQueryClient();
+	const provider = useSettingsStore((s) => s.provider);
+	const providerId = provider?.id ?? "";
+	const queryClient = useQueryClient();
 
-  const query = useQuery({
-    queryKey: ['bookings', providerId, dateRange?.from, dateRange?.to],
-    queryFn: async (): Promise<Booking[]> => {
-      if (isDemoMode()) {
-        let result = DEMO_BOOKINGS;
-        if (dateRange) {
-          result = result.filter((b) => b.date >= dateRange.from && b.date <= dateRange.to);
-        }
-        return result;
-      }
+	const query = useQuery({
+		queryKey: ["bookings", providerId, dateRange?.from, dateRange?.to],
+		queryFn: async (): Promise<Booking[]> => {
+			if (isDemoMode()) {
+				let result = DEMO_BOOKINGS;
+				if (dateRange) {
+					result = result.filter(
+						(b) => b.date >= dateRange.from && b.date <= dateRange.to,
+					);
+				}
+				return result;
+			}
 
-      let q = supabase
-        .from('bookings')
-        .select('*')
-        .eq('provider_id', providerId);
+			let q = supabase
+				.from("bookings")
+				.select("*")
+				.eq("provider_id", providerId);
 
-      if (dateRange) {
-        q = q.gte('date', dateRange.from).lte('date', dateRange.to);
-      }
+			if (dateRange) {
+				q = q.gte("date", dateRange.from).lte("date", dateRange.to);
+			}
 
-      const { data, error } = await q.order('date').order('start_time');
+			const { data, error } = await q.order("date").order("start_time");
 
-      if (error || !data) {
-        return db.bookings.where('providerId').equals(providerId).toArray();
-      }
+			if (error || !data) {
+				return db.bookings.where("providerId").equals(providerId).toArray();
+			}
 
-      const bookings = data as unknown as Booking[];
-      return bookings;
-    },
-    enabled: !!providerId,
-    staleTime: 10_000,
-  });
+			const bookings = data as unknown as Booking[];
+			return bookings;
+		},
+		enabled: !!providerId,
+		staleTime: 10_000,
+	});
 
-  // Realtime subscription for new bookings (skip in demo mode)
-  useEffect(() => {
-    if (!providerId || isDemoMode()) return;
+	// Realtime subscription for new bookings (skip in demo mode)
+	useEffect(() => {
+		if (!providerId || isDemoMode()) return;
 
-    const channel = supabase
-      .channel('bookings-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'bookings',
-          filter: `provider_id=eq.${providerId}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['bookings'] });
-        },
-      )
-      .subscribe();
+		const channel = supabase
+			.channel("bookings-realtime")
+			.on(
+				"postgres_changes",
+				{
+					event: "*",
+					schema: "public",
+					table: "bookings",
+					filter: `provider_id=eq.${providerId}`,
+				},
+				() => {
+					queryClient.invalidateQueries({ queryKey: ["bookings"] });
+				},
+			)
+			.subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [providerId, queryClient]);
+		return () => {
+			supabase.removeChannel(channel);
+		};
+	}, [providerId, queryClient]);
 
-  return {
-    bookings: query.data ?? [],
-    isLoading: query.isLoading,
-    error: query.error,
-  };
+	return {
+		bookings: query.data ?? [],
+		isLoading: query.isLoading,
+		error: query.error,
+	};
 }
 
 export function useCreateBooking() {
-  const provider = useSettingsStore((s) => s.provider);
-  const queryClient = useQueryClient();
+	const provider = useSettingsStore((s) => s.provider);
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({
-      formData,
-      serviceDuration,
-      totalPrice,
-    }: {
-      formData: BookingFormData;
-      serviceDuration: number;
-      totalPrice: number;
-    }) => {
-      const providerId = provider?.id ?? '';
+	return useMutation({
+		mutationFn: async ({
+			formData,
+			serviceDuration,
+			totalPrice,
+		}: {
+			formData: BookingFormData;
+			serviceDuration: number;
+			totalPrice: number;
+		}) => {
+			const providerId = provider?.id ?? "";
 
-      // License check: block if booking limit reached
-      const licenseStore = useLicenseStore.getState();
-      if (!licenseStore.canBook()) {
-        throw new Error('BOOKING_LIMIT_REACHED');
-      }
+			// License check: block if booking limit reached
+			const licenseStore = useLicenseStore.getState();
+			if (!licenseStore.canBook()) {
+				throw new Error("BOOKING_LIMIT_REACHED");
+			}
 
-      // Find or create customer
-      const customer = await findOrCreateCustomer(providerId, formData);
+			// Find or create customer
+			const customer = await findOrCreateCustomer(providerId, formData);
 
-      const booking: Booking = {
-        id: generateId(),
-        providerId,
-        serviceId: formData.serviceId,
-        staffId: formData.staffId,
-        customerId: customer.id,
-        date: formData.date,
-        startTime: formData.time,
-        endTime: calculateEndTime(formData.time, serviceDuration),
-        status: 'confirmed',
-        addons: formData.addons,
-        totalPrice,
-        depositPaid: 0,
-        notes: formData.notes,
-        confirmationToken: generateToken(),
-        createdAt: new Date().toISOString(),
-      };
+			const booking: Booking = {
+				id: generateId(),
+				providerId,
+				serviceId: formData.serviceId,
+				staffId: formData.staffId,
+				customerId: customer.id,
+				date: formData.date,
+				startTime: formData.time,
+				endTime: calculateEndTime(formData.time, serviceDuration),
+				status: "confirmed",
+				addons: formData.addons,
+				totalPrice,
+				depositPaid: 0,
+				notes: formData.notes,
+				confirmationToken: generateToken(),
+				createdAt: new Date().toISOString(),
+			};
 
-      await db.bookings.put(booking);
-      if (!isDemoMode()) await upsertToSupabase('bookings', booking);
+			await db.bookings.put(booking);
+			if (!isDemoMode()) await upsertToSupabase("bookings", booking);
 
-      // Increment booking counter after successful creation
-      licenseStore.incrementBookings();
+			// Increment booking counter after successful creation
+			licenseStore.incrementBookings();
 
-      return { booking, customer };
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['customers'] });
-    },
-  });
+			return { booking, customer };
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["bookings"] });
+			queryClient.invalidateQueries({ queryKey: ["customers"] });
+		},
+	});
 }
 
 export function useUpdateBookingStatus() {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({
-      bookingId,
-      status,
-      cancelReason,
-    }: {
-      bookingId: string;
-      status: Booking['status'];
-      cancelReason?: string;
-    }) => {
-      const updates: Partial<Booking> = { status };
-      if (status === 'cancelled') {
-        updates.cancelledAt = new Date().toISOString();
-        updates.cancelReason = cancelReason;
-      }
+	return useMutation({
+		mutationFn: async ({
+			bookingId,
+			status,
+			cancelReason,
+		}: {
+			bookingId: string;
+			status: Booking["status"];
+			cancelReason?: string;
+		}) => {
+			const updates: Partial<Booking> = { status };
+			if (status === "cancelled") {
+				updates.cancelledAt = new Date().toISOString();
+				updates.cancelReason = cancelReason;
+			}
 
-      if (!isDemoMode()) {
-        const { error } = await supabase
-          .from('bookings')
-          .update(updates)
-          .eq('id', bookingId);
+			if (!isDemoMode()) {
+				const { error } = await supabase
+					.from("bookings")
+					.update(updates)
+					.eq("id", bookingId);
 
-        if (error) throw error;
-      }
+				if (error) throw error;
+			}
 
-      await db.bookings.update(bookingId, updates);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookings'] });
-    },
-  });
+			await db.bookings.update(bookingId, updates);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["bookings"] });
+		},
+	});
 }
 
 async function findOrCreateCustomer(
-  providerId: string,
-  formData: BookingFormData,
+	providerId: string,
+	formData: BookingFormData,
 ): Promise<Customer> {
-  if (!isDemoMode()) {
-    // Try to find existing customer by email
-    const { data: existing } = await supabase
-      .from('customers')
-      .select('*')
-      .eq('provider_id', providerId)
-      .eq('email', formData.email)
-      .single();
+	if (!isDemoMode()) {
+		// Try to find existing customer by email
+		const { data: existing } = await supabase
+			.from("customers")
+			.select("*")
+			.eq("provider_id", providerId)
+			.eq("email", formData.email)
+			.single();
 
-    if (existing) {
-      const customer = existing as unknown as Customer;
-      // Update last booking date
-      await supabase
-        .from('customers')
-        .update({ last_booking_at: new Date().toISOString() })
-        .eq('id', customer.id);
-      return customer;
-    }
-  } else {
-    // In demo mode, check Dexie local DB
-    const localCustomer = await db.customers
-      .where('email')
-      .equals(formData.email)
-      .first();
-    if (localCustomer) return localCustomer;
-  }
+		if (existing) {
+			const customer = existing as unknown as Customer;
+			// Update last booking date
+			await supabase
+				.from("customers")
+				.update({ last_booking_at: new Date().toISOString() })
+				.eq("id", customer.id);
+			return customer;
+		}
+	} else {
+		// In demo mode, check Dexie local DB
+		const localCustomer = await db.customers
+			.where("email")
+			.equals(formData.email)
+			.first();
+		if (localCustomer) return localCustomer;
+	}
 
-  // Create new customer
-  const customer: Customer = {
-    id: generateId(),
-    providerId,
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    email: formData.email,
-    phone: formData.phone,
-    tags: ['neukunde'],
-    noShowCount: 0,
-    totalSpent: 0,
-    firstBookingAt: new Date().toISOString(),
-    lastBookingAt: new Date().toISOString(),
-  };
+	// Create new customer
+	const customer: Customer = {
+		id: generateId(),
+		providerId,
+		firstName: formData.firstName,
+		lastName: formData.lastName,
+		email: formData.email,
+		phone: formData.phone,
+		tags: ["neukunde"],
+		noShowCount: 0,
+		totalSpent: 0,
+		firstBookingAt: new Date().toISOString(),
+		lastBookingAt: new Date().toISOString(),
+	};
 
-  if (!isDemoMode()) {
-    await upsertToSupabase('customers', customer);
-  }
-  await db.customers.put(customer);
+	if (!isDemoMode()) {
+		await upsertToSupabase("customers", customer);
+	}
+	await db.customers.put(customer);
 
-  return customer;
+	return customer;
 }
